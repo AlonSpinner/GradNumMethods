@@ -1,4 +1,4 @@
-%system of equations:
+%% Numerically solve system of equations:
 %equation 1: x^2 + y^2 = 4
 %equation 2: e^x +y = 1
 %x1=x;
@@ -27,8 +27,19 @@ while norm(xk-xkm1,2)>e %Euclid norm
     iterN=iterN+1;
 end
 
-%print solutions
+%print solution
 fprintf('with interations = %g\n',iterN);
 fprintf('xk=%g,%g\n',xk);
 fprintf('F(xk)=%g,%g\n',F);
 fprintf('F(xk)=%g,%g\n',F);
+
+%% Plot solution against symbolic solution
+syms x y
+eq1=x^2+y^2==4;
+eq2=exp(x)+y==1;
+fig=figure('color',[1,1,1]);
+ax=axes(fig);
+hold(ax,'on'); grid(ax,'on');
+fimplicit(ax,eq1);
+fimplicit(ax,eq2);
+scatter(ax,xk(1),xk(2),20,"black",'filled');
