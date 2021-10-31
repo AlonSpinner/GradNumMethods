@@ -31,7 +31,6 @@ end
 fprintf('with interations = %g\n',iterN);
 fprintf('xk=%g,%g\n',xk);
 fprintf('F(xk)=%g,%g\n',F);
-fprintf('F(xk)=%g,%g\n',F);
 
 %% Plot solution against symbolic solution
 syms x y

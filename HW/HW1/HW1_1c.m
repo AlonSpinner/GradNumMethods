@@ -10,7 +10,7 @@ for ii=1:length(k)
     a(ii)=toc;
     
     tic;
-    R=MyDist_a(P,P0);
+    R=MyDist_b(P,P0);
     b(ii)=toc;
 end
 
@@ -18,7 +18,7 @@ fig=figure('color',[1,1,1]);
 ax=axes(fig);
 hold(ax,'on'); grid(ax,'on');
 scatter(ax,logk,a./b,50,'filled')
-plot([ax,logk(1),logk(end)],[1,1],'linewidth',3,'color','r');
+plot(ax,[logk(1),logk(end)],[1,1],'linewidth',3,'color','r');
 ylabel(ax,'Calculation time rational: a/b');
 xlabel(ax,'log(k) where k = number of points in P');
 title(ax,'Comparing for Loop vs Vectorization for Euclid Distances')
