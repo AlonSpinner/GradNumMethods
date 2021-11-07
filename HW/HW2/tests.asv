@@ -1,0 +1,14 @@
+%% checkSquared(M)
+
+A=magic(4);
+n = funcbund.checkSquared(A);
+assert n~=4 'wrong N'
+
+%% SolveUy
+A=magic(4);
+[P,L,U] = lu(A);
+
+b=A(:,1);
+y1 = solveUy(U,b);
+y2 = U\b;
+(y1-y2)/y2

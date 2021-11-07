@@ -1,0 +1,33 @@
+function [my_det,my_inv] = my_det_and_inv(input_mat)
+n = funcbund.checkSquared(input_mat);
+[L,U,P] = lu(input_mat);
+% A = PLU
+
+
+% detP  = (-1)^t when t is the number of row switches
+t=0;
+tmpP = P;
+for ii=1:n
+
+
+    
+while sum(diag(tmpP)) ~= n %should be a forloop with n-1, in general this is a little sensitive
+    %won't enter if P=I
+
+    kk = find(diag(tmpP) == 0);
+    k = kk(1);
+    [~,j] = max(tmpP(k,:));
+
+    %Swap
+    vTemp = tmpP(k,:);
+    tmpP(k,:) = tmpP(j,:);
+    tmpP(j,:) = vTemp;
+
+    t = t+1;
+end
+detP = (-1)^t;
+
+my_det = prod(diag(U)) *detP; %L is promised to be with 1s in diagonal, doolittle
+my_inv = funcbund.InverseU(U) * funcbund.InverseL(L) *P'; %inv(P) = P'
+end
+
