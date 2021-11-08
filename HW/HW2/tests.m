@@ -47,3 +47,16 @@ invL1 = funcbund.InverseL(L);
 invL2 = inv(L);
 disp('norm difference between my method and matlab"s')
 disp(norm(invL2-invL1)/norm(invL2))
+
+%% detPerm
+kk=100;
+s=0;
+for ii=1:kk
+ n = max(round(10*rand),1);
+ P = funcbund.randPerm(n);
+ detP = funcbund.detPerm(P);
+ 
+ error = detP - det(P);
+ s = s + abs(error);
+end
+disp(s);

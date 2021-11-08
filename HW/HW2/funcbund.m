@@ -54,5 +54,37 @@ classdef funcbund
                 invL(:,ii) = funcbund.solveLx(L,b);
             end
         end
+
+        function P = randPerm(n)
+            P = eye(n);
+            P = P(randperm(n),:);
+        end
+
+        function detP = detPerm(P)
+            % detP  = (-1)^t when t is the number of row switches
+            n = funcbund.checkSquared(P);
+            t=0;
+            for ii=1:n
+                [~,kk] = max(P(ii,:));
+                t=t+sum(P(ii+1:end,1:kk),'all');
+            end
+            detP=(-1)^t;
+
+%             % OLD VERSION
+%             t=0;
+%             tmpP = P;
+%             for ii=1:n
+%                 if tmpP(ii)==0
+%                     [~,jj] = max(tmpP(ii,:));
+%                     vTemp = tmpP(ii,:);
+%                     tmpP(ii,:) = tmpP(jj,:);
+%                     tmpP(jj,:) = vTemp;
+% 
+%                     t = t+1;
+%                 end
+%             end
+%             detP = (-1)^t;
+
+        end
     end
 end
