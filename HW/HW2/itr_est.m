@@ -11,7 +11,7 @@ function [est_num_iter, est_error ] = itr_est(x0,G,c,threshold,k)
     % error bounds hold:
 
     %bound(1) ||x-x(k)|| <= ||T||^k||x(0)-x|| % a little useless
-    %bound(2) ||x-x(k)|| <= ||T||^k/(1-||T||)*||x(1)-x(0)||
+    %bound(2) ||x-x(k)|| <= ||T||^k/(1-||T||)*||x(1)-x(0)||To 
 
     x1 = G*x0 + c;
     ndx1 = norm(x1-x0,'inf');
