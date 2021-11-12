@@ -5,7 +5,7 @@ sol = gauss_elim(A,b,0);
 without_piv_time = toc
 tic
 sol_piv = gauss_elim(A,b,1);
-with_pivot = toc
+with_pivot_time= toc
 tic
 comp = A\b;
 compare_time = toc

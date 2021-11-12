@@ -9,7 +9,7 @@ U = -triu(A,1);
 T = D\(L+U);
 C = D\b;
 
-Lambda = max(abs(eig(T)));
+Lambda = max(abs(eig(T)))
 
 % 5.2
 x0 = zeros(20,1);
