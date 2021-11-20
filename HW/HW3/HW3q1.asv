@@ -25,9 +25,10 @@ else
 end
 if(plt_run==1)
   sp_plot = zeros(8000,6,3);
-end
   sp_num = 1
   runner = 1
+end
+
 
 
 
@@ -71,14 +72,30 @@ for p = 1:3
             if (w == 5 && plt_run ~= 1)
                 break
             end
-    end
+        end
+        if (w == 5 && plt_run ~= 1)
+            break
+        end
         sp_num = sp_num + 1;
         runner = 1;
 end
 %%
+if (sim_section == 1)
     for (i = 1:3)
     colors = [[0,1,0];[0,0,1];[0,0,0];[1,0,0]]
-    figure((sim_section-1)*3 + i)
+    figure(i)
+    index = find(vecnorm(solutions{i},2,2)>10^-4)
+    scatter3(solutions{i}(index,1),solutions{i}(index,2),solutions{i}(index,3),30*ones(size(index,1),1),colors(index,:),'filled')
+    hold on
+    scatter3(sp_plot(:,1,i),sp_plot(:,2,i),sp_plot(:,3,i),4*ones(8000,1),sp_plot(:,4:6,i),'filled','MarkerFaceAlpha',.5)
+    xlabel('$$\Theta_{1}$$','Interpreter','latex')
+    ylabel('$$\Theta_{2}$$','Interpreter','latex')
+    zlabel('$$\Theta_{3}$$','Interpreter','latex')
+    end
+elseif(sim_section == 2)
+    for (i = 1:3)
+    colors = [[0,1,0];[0,0,1];[0,0,0];[1,0,0]]
+    figure(i)
     check_point = find(vecnorm(sp_plot(:,:,i),2,2) >10^-4)
     index = find(vecnorm(solutions{i},2,2)>10^-4)
     scatter3(solutions{i}(index,1),solutions{i}(index,2),solutions{i}(index,3),30*ones(size(index,1),1),colors(index,:),'filled')
@@ -88,3 +105,7 @@ end
     ylabel('$$\Theta_{2}$$','Interpreter','latex')
     zlabel('$$\Theta_{3}$$','Interpreter','latex')
     end
+    elseif(sim_section == 3)
+    for (i = 1:3)
+    colors = [[0,1,0];[0,0,1];[0,0,0];[1,0,0]]
+end
