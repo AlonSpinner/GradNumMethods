@@ -19,8 +19,8 @@ classdef funcbund
             Y = s1*(l2+s2*l3+s23*l4+c23*l5);
             Z = l1 +c2*l3+c23*l4-s23*l5;
 
-            P=[X,Y,Z];
-            fP = matlabFunction(P);
+            P=[X,Y,Z]';
+            fP = matlabFunction(P,'vars',{[th1,th2,th3]'});
 
         end
 
@@ -33,7 +33,7 @@ classdef funcbund
                     J(ii,jj) = diff(P(ii),q(jj));
                 end
             end 
-            fJ = matlabFunction(J);
+            fJ = matlabFunction(J,'vars',{[q(1),q(2),q(3)]'});
         end
     end
 end
