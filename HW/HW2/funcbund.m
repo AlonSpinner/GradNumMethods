@@ -90,12 +90,19 @@ classdef funcbund
             %         end
             %         detP = (-1)^t;
         end
+        
         function  [G,c] = prepGausSiedel(A,b)
             L = -tril(A,-1);
             D = diag(diag(A));
             Q = D-L;
             G = funcbund.InverseL(Q) * (Q-A);
             c = funcbund.InverseL(Q) * b;
+        end
+
+        function  [G,c] = prepJacobi(A,b)
+            D = diag(diag(A));
+            G = (1./D) * (D-A);
+            c = (1./D) * b;
         end
 
         function x  = iterative_solver(G,c,x0,k)
