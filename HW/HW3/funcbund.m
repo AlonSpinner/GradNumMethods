@@ -36,15 +36,15 @@ classdef funcbund
         end
         function solutions = findSolutions(x0s,ptargets,fP,errBound,fJ)
             ntargets = size(ptargets,2);
-            
+
             if nargin > 4 %jacobian was provided
                 Jflag=true;
                 fsolveOptions = optimoptions('fsolve','SpecifyObjectiveGradient',true,'Display','off');
             else
                 Jflag=false;
-                fsolveOptions = optimoptions('Display','off');
+                fsolveOptions = optimoptions('fsolve','Display','off');
             end
-            
+
             solutions = cell(1,ntargets);
             for mm = 1:ntargets
                 fPtarget = @(q) fP(q) - ptargets(:,mm);
@@ -53,15 +53,15 @@ classdef funcbund
                 else
                     fPsoltarget = fPtarget;
                 end
-                
+
                 xsols=zeros(size(x0s));
                 for ii=1:size(x0s,2)
-                    xsols(:,ii) = wrapToPi(fsolve(fPsoltarget,x0s(:,ii),fsolveOptions));
-                    disp(ii)
+                    xsols(:,ii) = fsolve(fPsoltarget,x0s(:,ii),fsolveOptions);
+%                     disp(ii)
                 end
                 xsols_goodIdx = vecnorm(fPtarget(xsols),2,1)<errBound; %find solutions that pass criteria
                 xsols_good = xsols(:,xsols_goodIdx);
-                solutions{mm} = unique(round(xsols_good',4),'rows')'; %publish unique solutions
+                solutions{mm}  = funcbund.z2q(unique(round(funcbund.q2z(xsols_good),4)','rows')'); %publish unique solutions
             end
             disp('finished finding solutions')
         end
@@ -83,9 +83,10 @@ classdef funcbund
                 %assign x0 points to each solution by distance of x from solution
                 for ii=1:size(x0s,2)
                     x0 = x0s(:,ii);
-                    x = wrapToPi(fsolve(fPtarget,x0,fsolveOptions));
-                    if vecnorm(fPtarget(x),2)<errBound
-                        [~,minIdx]=min(vecnorm(x-solutions{mm}));
+                    x = fsolve(fPtarget,x0,fsolveOptions);
+                    if vecnorm(fPtarget(x),2)<errBound %is a solution
+                        d = vecnorm(funcbund.q2z(x)-funcbund.q2z(solutions{mm}),2);
+                        [~,minIdx]= min(d);
                         x0Points_mm{minIdx}(:,end+1) = x0;
                     else
                         x0Points_mm{end}(:,end+1) = x0;
@@ -98,21 +99,26 @@ classdef funcbund
                 disp('finished assigning each x0 point to a solution')
             end
         end
-        function PlotSolutions(solutions,x0Points)
+        function PlotSolutions(solutions,x0Points,titlePrefix)
+            if nargin < 3
+                titlePrefix = '';
+            end
+            
             for mm=1:length(x0Points)
                 %if isempty(solutions{mm}), continue; end
 
-                fig=figure;
+                fig=figure('color',[1 1 1]);
                 ax=axes(fig);
                 grid(ax,'on'); hold(ax,'on');
                 xlabel(ax,'$$\Theta_{1}$$','Interpreter','latex');
                 ylabel(ax,'$$\Theta_{2}$$','Interpreter','latex');
                 zlabel(ax,'$$\Theta_{3}$$','Interpreter','latex');
                 view(ax,3);
-                
+                title(ax,sprintf('%s - P%d',titlePrefix,mm));
+
                 %plot solutions
                 solAmnt = size(solutions{mm},2);
-                color = jet(solAmnt);
+                color = lines(solAmnt);
                 for ii=1:solAmnt
                     XYZ = x0Points{mm}{ii}';
                     scatter3(ax,XYZ(1,1),XYZ(1,2),XYZ(1,3),200,color(ii,:),'filled','diamond',...
@@ -128,6 +134,12 @@ classdef funcbund
                         'MarkerEdgeColor','none','MarkerFaceAlpha',0.5);
                 end
             end
+        end
+        function z = q2z(q)
+            z = exp(1i*q);
+        end
+        function q = z2q(z)
+            q = angle(z);
         end
     end
 end

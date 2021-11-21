@@ -22,8 +22,7 @@ end
 
 solutions = funcbund.findSolutions(x0s,ptargets,fP,errBound);
 x0Points = funcbund.findx0Points4Solutions(x0s,solutions,ptargets,fP,errBound);
-funcbund.PlotSolutions(solutions,x0Points);
-
+funcbund.PlotSolutions(solutions,x0Points,'Q1.1');
 %% Q1.2
 N=3;
 [q1,q2,q3] = deal(linspace(-pi,pi,N));
@@ -38,15 +37,14 @@ end
 
 solutions = funcbund.findSolutions(x0s,ptargets,fP,errBound);
 x0Points = funcbund.findx0Points4Solutions(x0s,solutions,ptargets,fP,errBound);
-funcbund.PlotSolutions(solutions,x0Points);
-
+funcbund.PlotSolutions(solutions,x0Points,'Q1.2');
 %% Q1.3
 N=3^3;
 x0s = wrapToPi(2*pi*rand(3,N));
 
 solutions = funcbund.findSolutions(x0s,ptargets,fP,errBound);
 x0Points = funcbund.findx0Points4Solutions(x0s,solutions,ptargets,fP,errBound);
-funcbund.PlotSolutions(solutions,x0Points);
+funcbund.PlotSolutions(solutions,x0Points, 'Q1.3');
 
 %% Q2.1
 J = funcbund.symJacobian();
@@ -64,6 +62,12 @@ for ii = 1:N
     end
 end
 
-solutions = funcbund.findSolutions(x0s,p1,fP,errBound,fJ);
-x0Points = funcbund.findx0Points4Solutions(x0s,solutions,p1,fP,errBound);
-funcbund.PlotSolutions(solutions,x0Points);
+tic
+funcbund.findSolutions(x0s,p1,fP,errBound,fJ); %with Jacobian
+disp('with Jacobian:')
+toc
+
+tic
+funcbund.findSolutions(x0s,p1,fP,errBound); %without Jacobian
+disp('without Jacobian:')
+toc
