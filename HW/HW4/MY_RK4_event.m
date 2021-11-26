@@ -1,6 +1,6 @@
 function [t,y] = MY_RK4_event(fun_handle, step_size, time_span, initial_value)
 h = step_size; %shorter notation
-t=[time_span(1):h:time_span(2)]';
+t=zeros(ceil((time_span(2)-time_span(1))/h),1);
 
 initial_value = initial_value(:)'; %ensure it is a row vector
 y = zeros(length(t),length(initial_value));
@@ -35,6 +35,7 @@ while ii <= length(t)-1
     
     %if we didnt break or continue,
     y(ii+1,:) = yiip1;
+    t(ii+1) = t(ii)+h;
     ii = ii+1;
 end
 end

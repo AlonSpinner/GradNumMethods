@@ -48,7 +48,7 @@ end
 close(vidWriter);
 
 %% Q3
-h= 0.01;
+h= 0.1;
 y0 = [pi/4,1,0,0]';
 time_span = [0 10];
 [t,y] = MY_RK4_event('My_DoublePendulum', h, time_span, y0);
@@ -62,8 +62,8 @@ end
 ax = funcbund.prepAxes('wall',true);
 htxt = text(ax,1.2,-0.2,sprintf('t = %.2g [s]',t(1)));
 ax.YLim = [-2.1,0]; ax.XLim = [-2,2];
-title(ax,'h = 1e-2, y0 = [pi/4,1,0,0], with wall');
-vidWriter = VideoWriter('h1e-2wall','Motion JPEG AVI');
+title(ax,'h = 1e-1, y0 = [pi/4,1,0,0], with wall');
+vidWriter = VideoWriter('h1e-1wall','Motion JPEG AVI');
 vidWriter.FrameRate = length(t)/t(end);
 open(vidWriter);
 [hLine1,hLine2,hEdge1,hEdge2] = funcbund.plotPendulum(ax,y0(1),y0(2),'plotEdges',true);
@@ -79,8 +79,14 @@ fig = figure('color',[1,1,1]);
 ax = axes(fig);
 hold(ax,'on'); grid(ax,'on');
 xlabel(ax,'t'); ylabel(ax,'x');
-title(ax,'h = 1e-2, y0 = [pi/4,1,0,0], with wall');
-h1 = plot(ax,t,xs(:,1));
-h2 = plot(ax,t,xs(:,2));
+title(ax,'h = 1e-1, y0 = [pi/4,1,0,0], with wall');
+h1 = plot(ax,t,xs(:,1),'o-');
+h2 = plot(ax,t,xs(:,2),'o-');
 h3 = plot(ax,ax.XLim,funcbund.wallX*[1,1],'linestyle','--','color','k');
 legend(ax,[h1 h2 h3],{'x of m1', 'x of m2', 'x of wall'})
+
+%% Q4
+%(a) - find angle theta1 of the collision with wall
+theta1_collision = rad2deg(asin(funcbund.wallX/funcbund.l1));
+
+%% Q5

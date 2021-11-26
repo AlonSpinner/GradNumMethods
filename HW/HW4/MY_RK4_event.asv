@@ -12,7 +12,8 @@ else
     f = fun_handle;
 end
 
-for ii = 1:length(t)-1
+ii = 1;
+while ii <= length(t)-1
     yii = y(ii,:)';
     k0 = f(t(ii),yii);
     k1 = f(t(ii)+0.5*h,yii+(h/2)*k0);
@@ -20,46 +21,33 @@ for ii = 1:length(t)-1
     k3 = f(t(ii)+h,yii+h*k2);
 
     yiip1 = y(ii,:) + (h/6)*(k0+2*k1+2*k2+k3)'; %transpose for row vector
-    if detectCollision(yiip1(1),yiip1(2)), break, end
     
-    [x1,x2] = theta2x(yiip1(1),yiip1(2));
-    if (x1-xWall)<0 || abs(x2-xWall)<0 %one of the xs is more negative than xWall
-        h = h/2;
+    %adaptive for wall
+    if detectCollision(yiip1(1),yiip1(2))
+        y = y(1:ii,:); t = t(1:ii,:); %cut shorter
+        break;
     end
-
-    y(ii+1,:) = y(ii,:) + (h/6)*(k0+2*k1+2*k2+k3)'; %transpose for row vector
+    p = funcbund.theta2p([yiip1(1),yiip1(2)]);
+    if (p(1,1)-funcbund.wallX)<0 || (p(2,1)-funcbund.wallX)<0 %one of the xs is more negative than xWall
+        h = h/2;
+        alpha = alpha/2;
+        continue
+    end
+    
+    %if we didnt break or continue,
+    y(ii+1,:) = yiip1;
+    t(ii) = t(ii) * alpha;
+    ii = ii+1;
 end
 end
 
 function Q = detectCollision(th1,th2)
 %quick and dirty defintions
-xWall = -0.5;
-tolx = 1e-8;
-
-[x1,x2] = theta2x(th1,th2);
-if abs(x1-xWall)<tolx || abs(x2-xWall)<tolx
+xWall = funcbund.wallX;
+tolx = funcbund.TolWallX;
+Q=false;
+p = funcbund.theta2p([th1,th2]);
+if abs(p(1,1)-xWall)<tolx || abs(p(2,1)-xWall)<tolx
     Q=true;
-else
-    Q=false;
-end
-end
-
-function [x1,x2] = theta2x(th1,th2)
-%quick and dirty defintions
-l1 = 1; l2 = 2;
-%compute
-x1 = l1*cos(th1-pi/2); %-pi/2 for coordiante system
-x2 = x1 + l2*cos(th2-pi/2);
-end
-
-function xstar = biSect(f,a,b,tol)
-c = a;
-while abs(f(c)) > tol
-    c = 0.5*(a+b);
-    if f(c)*f(a) > 0
-        a = c;
-    else
-        b = c;
-    end
 end
 end
