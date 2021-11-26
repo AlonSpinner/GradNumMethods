@@ -7,6 +7,8 @@ classdef funcbund
         g = 1;
         wallX = -0.5;
         TolWallX=1e-8;
+        h = 0.01; %default
+        time_span = [0 10] %default
     end
     methods(Static)
         function fdy = createMyDoublePendulum()
@@ -86,7 +88,7 @@ classdef funcbund
             uistack([hLine1,hLine2],'top');
         end
 
-        function ax = prepAxes(varargin)
+        function [ax,fig] = prepAxes(varargin)
             wall = false;
             for ind=1:2:length(varargin)
                 comm=lower(varargin{ind});
@@ -111,7 +113,22 @@ classdef funcbund
             end
 
         end
-
+        function J = f5a(th)
+            [~,y] = MY_RK4_event(@My_DoublePendulum, funcbund.h, funcbund.time_span, [th(1),th(2),0,0]');
+            p = funcbund.theta2p(y(end,1:2));
+            J = [p(1,1)-funcbund.wallX;
+                p(2,1)-funcbund.wallX];
+        end
+        function J = f5b(th)
+            [~,y] = MY_RK4_event(@My_DoublePendulum, funcbund.h, funcbund.time_span, [1,th,0,0]');
+            p = funcbund.theta2p(y(end,1:2));
+            J = p(1,1)-funcbund.wallX;
+        end
+        function J = f5c(th)
+            [~,y] = MY_RK4_event(@My_DoublePendulum, funcbund.h, funcbund.time_span, [1,th,0,0]');
+            p = funcbund.theta2p(y(end,1:2));
+            J = p(2,1)-funcbund.wallX;
+        end
         function p = theta2p(th)
             %-pi/2 for coordiante system
             x1 = funcbund.l1*cos(th(1)-pi/2); 

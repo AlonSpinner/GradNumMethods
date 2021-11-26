@@ -5,6 +5,7 @@ classdef funcbund
         m1 = 1;
         m2 = 2;
         g = 1;
+
         wallX = -0.5;
         TolWallX=1e-8;
     end
@@ -66,8 +67,10 @@ classdef funcbund
                 'linewidth',2,'linestyle',linestyle,'color',color,...
                 'Marker','o','MarkerFaceColor',color,'MarkerSize',15);
             if plotEdges
-                hLine1 =plot(ax,[0,p(1,1)],...
-                    'linewidth',1,'linestyle','*','color',color);
+                hEdge1 = plot(ax,p(1,1),p(1,2),...
+                    'linewidth',1,'linestyle',':','color','r');
+                hEdge2 = plot(ax,p(2,1),p(2,2),...
+                    'linewidth',1,'linestyle',':','color','b');
             end
         end
 
@@ -76,8 +79,9 @@ classdef funcbund
             hLine1.XData = [0,p(1,1)]; hLine1.YData = [0,p(1,2)];
             hLine2.XData = [p(1,1),p(2,1)]; hLine2.YData =[p(1,2),p(2,2)];
             if nargin > 4
-                hEdge1.XData = p(1,1); hEdge1.YData = p(1,2);
-                hEdge2.XData = p(2,1); hEdge2.YData = p(2,2);
+                hEdge1.XData = [hEdge1.XData,p(1,1)]; hEdge1.YData = [hEdge1.YData,p(1,2)];
+                hEdge2.XData = [hEdge2.XData,p(2,1)]; hEdge2.YData = [hEdge2.YData,p(2,2)];
+                uistack([hEdge1,hEdge2],'top');
             end
 
             uistack([hLine1,hLine2],'top');
@@ -108,7 +112,13 @@ classdef funcbund
             end
 
         end
-
+        function x1 = f5p1(th)
+            time_span = [0, 10];
+            h = 0.01;
+            [~,y] = MY_RK4_event(@My_DoublePendulum, h, time_span, [th(1),th(2),0,0]');
+            p = funcbund.theta2p(y(end,1:2));
+            x1 = p(1,1)-funcbund.wallX;
+        end
         function p = theta2p(th)
             %-pi/2 for coordiante system
             x1 = funcbund.l1*cos(th(1)-pi/2); 
