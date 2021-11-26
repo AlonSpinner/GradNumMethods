@@ -1,14 +1,25 @@
 classdef funcbund
+    properties(Constant)
+        l1 = 1;
+        l2 = 1;
+        m1 = 1;
+        m2 = 2;
+        g = 1;
+        wallX = -0.5;
+        TolWallX=1e-8;
+    end
     methods(Static)
-        function fdy = createMyDoublePendulum(m1,m2,l1,l2,g)
+        function fdy = createMyDoublePendulum()
             %y = [th1,th2,dth1,dth2]'
             %dy = [dth1,dth2,ddth1,ddth1]'
             %dy = My_DoublePendulum(t,y) = My_DoublePendulum(~,y) as t is
             %not relevant in equations
 
-            if nargin == 0 % no inputs
-                m1 = 1; m2 = 0.5; l1 = 1; l2 = 1; g = 1;
-            end
+           m1 = funcbund.m1; 
+           m2 = funcbund.m2; 
+           l1 = funcbund.l1; 
+           l2 = funcbund.l2; 
+           g = funcbund.g;
             
             syms t th1 th2 dth1 dth2 ddth1 ddth2 real            
         
@@ -33,38 +44,60 @@ classdef funcbund
                 'comments',txt);
         end
 
-        function [hLine1,hLine2] = plotPendulum(ax,th1,th2,varargin)            
-            
-            l1 = 1; l2 = 1; color = [0 0 0];
+        function [hLine1,hLine2,hEdge1,hEdge2] = plotPendulum(ax,th1,th2,varargin)            
+            color = [0 0 0]; linestyle='-'; plotEdges = false;
             for ind=1:2:length(varargin)
                 comm=lower(varargin{ind});
                 switch comm
-                    case 'l1'
-                        l1=varargin{ind+1};
-                    case 'l2'
-                        l2=varargin{ind+1};
                     case 'color'
                         color=varargin{ind+1};
+                    case 'linestyle'
+                        linestyle=varargin{ind+1};
+                    case 'plotedges'
+                        plotEdges=varargin{ind+1};
+                    otherwise
+                        error('no such name-value pair exists');
+                end
+            end
+            p = funcbund.theta2p([th1,th2]);
+            hLine1 =plot(ax,[0,p(1,1)],[0,p(1,2)],...
+                'linewidth',2,'linestyle',linestyle,'color',color);
+            hLine2 = plot(ax,[p(1,1),p(2,1)],[p(1,2),p(2,2)],...
+                'linewidth',2,'linestyle',linestyle,'color',color,...
+                'Marker','o','MarkerFaceColor',color,'MarkerSize',15);
+            if plotEdges
+                hEdge1 = plot(ax,p(1,1),p(1,2),...
+                    'linewidth',1,'linestyle',':','color','r');
+                hEdge2 = plot(ax,p(2,1),p(2,2),...
+                    'linewidth',1,'linestyle',':','color','b');
+            end
+        end
+
+        function updatedPlotPendulum(hLine1,hLine2,th1,th2,hEdge1,hEdge2)
+            p = funcbund.theta2p([th1,th2]);
+            hLine1.XData = [0,p(1,1)]; hLine1.YData = [0,p(1,2)];
+            hLine2.XData = [p(1,1),p(2,1)]; hLine2.YData =[p(1,2),p(2,2)];
+            if nargin > 4
+                hEdge1.XData = [hEdge1.XData,p(1,1)]; hEdge1.YData = [hEdge1.YData,p(1,2)];
+                hEdge2.XData = [hEdge2.XData,p(2,1)]; hEdge2.YData = [hEdge2.YData,p(2,2)];
+                uistack([hEdge1,hEdge2],'top');
+            end
+
+            uistack([hLine1,hLine2],'top');
+        end
+
+        function ax = prepAxes(varargin)
+            wall = false;
+            for ind=1:2:length(varargin)
+                comm=lower(varargin{ind});
+                switch comm
+                    case 'wall'
+                        wall=varargin{ind+1};
                     otherwise
                         error('no such name-value pair exists');
                 end
             end
 
-            P0 = [0,0]';
-            P1 = P0 + [l1*cos(th1),l1*sin(th1)]';
-            P2 = P1 + [l2*cos(th2),l2*sin(th2)]';
-            
-            R = rotz(-90);
-            R = R(1:2,1:2);
-            P1 = R*P1;
-            P2 = R*P2;
-
-            hLine1 =plot(ax,[P0(1),P1(1)],[P0(2),P1(2)],'linewidth',2,'color',color);
-            hLine2 = plot(ax,[P1(1),P2(1)],[P1(2),P2(2)],'linewidth',2,'color',color,...
-                'Marker','o','MarkerFaceColor',color,'MarkerSize',15);
-        end
-
-        function ax = prepAxes(QplotWall)
             fig=figure('color',[1,1,1]);
             ax = axes(fig);
             hold(ax,'on')
@@ -73,10 +106,20 @@ classdef funcbund
             axis(ax,'equal');
 
             plot(ax,[-0.3,0.3],[0,0],'linestyle','--','Color',[0 0 0],'linewidth',2); %plot ceiling
-            if QplotWall
+            if wall
                 plot(ax,[-0.5,-0.5],[0,-2],'linestyle','--','Color',[0 0 0],'linewidth',2); %plot ceiling
             end
 
+        end
+
+        function p = theta2p(th)
+            %-pi/2 for coordiante system
+            x1 = funcbund.l1*cos(th(1)-pi/2); 
+            y1 = funcbund.l1*sin(th(1)-pi/2); 
+            x2 = x1 + funcbund.l2*cos(th(2)-pi/2);
+            y2 = y1 + funcbund.l2*sin(th(2)-pi/2);
+            p=[x1 y1;
+                x2 y2];
         end
     end
 end
