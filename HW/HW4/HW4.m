@@ -92,7 +92,7 @@ thetaStar = fsolve(@funcbund.f5a,[1,1]);
 
 [t,y] = MY_RK4_event(@My_DoublePendulum, funcbund.h, funcbund.time_span, [thetaStar 0 0]');
 ax = funcbund.prepAxes('wall',true);
-title(ax,sprintf('Q5a: theta_1(t=0) = %.3g and theta_2(t=0) = %3.g[rad]',thetaStar))
+title(ax,sprintf('Q5a: theta_1(t=0) = %.3g[rad] and theta_2(t=0) = %3.g[rad]',thetaStar))
 htxt = text(ax,1.2,-0.2,sprintf('t = %.2g [s]',t(1)));
 [hLine1,hLine2,hEdge1,hEdge2] = funcbund.plotPendulum(ax,y(1,:),y(2,:),'plotEdges',true);
 for ii=1:length(t)
@@ -105,7 +105,7 @@ thetaStar = fsolve(@funcbund.f5b,1);
 
 [t,y] = MY_RK4_event(@My_DoublePendulum, funcbund.h, funcbund.time_span, [1 thetaStar 0 0]');
 ax = funcbund.prepAxes('wall',true);
-title(ax,sprintf('Q5b: theta_1(t=0) = %.3g and theta_2(t=0) = %3.g[rad]',[1 thetaStar]))
+title(ax,sprintf('Q5b: theta_1(t=0) = %.3g[rad] and theta_2(t=0) = %3.g[rad]',[1 thetaStar]))
 htxt = text(ax,1.2,-0.2,sprintf('t = %.2g [s]',t(1)));
 [hLine1,hLine2,hEdge1,hEdge2] = funcbund.plotPendulum(ax,y(1,:),y(2,:),'plotEdges',true);
 for ii=1:length(t)
@@ -118,7 +118,7 @@ thetaStar = fsolve(@funcbund.f5c,1);
 
 [t,y] = MY_RK4_event(@My_DoublePendulum, funcbund.h, funcbund.time_span, [1 thetaStar 0 0]');
 ax = funcbund.prepAxes('wall',true);
-title(ax,sprintf('Q5c: theta_1(t=0) = %.3g and theta_2(t=0) = %3.g[rad]',[1 thetaStar]))
+title(ax,sprintf('Q5c: theta_1(t=0) = %.3g[rad] and theta_2(t=0) = %3.g[rad]',[1 thetaStar]))
 htxt = text(ax,1.2,-0.2,sprintf('t = %.2g [s]',t(1)));
 [hLine1,hLine2,hEdge1,hEdge2] = funcbund.plotPendulum(ax,y(1,:),y(2,:),'plotEdges',true);
 for ii=1:length(t)
