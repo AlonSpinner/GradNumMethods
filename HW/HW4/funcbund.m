@@ -3,7 +3,7 @@ classdef funcbund
         l1 = 1;
         l2 = 1;
         m1 = 1;
-        m2 = 2;
+        m2 = 0.5;
         g = 1;
         wallX = -0.5;
         TolWallX=1e-8;

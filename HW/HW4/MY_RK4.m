@@ -10,8 +10,8 @@ y(1,:) = initial_value;
 for ii = 1:length(t)-1
     yii = y(ii,:)';
     k0 = f(t(ii),yii);
-    k1 = f(t(ii)+0.5*h,yii+(h/2)*k0);
-    k2 = f(t(ii)+0.5*h,yii+(h/2)*k1);
+    k1 = f(t(ii)+0.5*h,yii+0.5*h*k0);
+    k2 = f(t(ii)+0.5*h,yii+0.5*h*k1);
     k3 = f(t(ii)+h,yii+h*k2);
 
     y(ii+1,:) = y(ii,:) + (h/6)*(k0+2*k1+2*k2+k3)'; %transpose for row vector
