@@ -10,7 +10,7 @@ axis([-.1 2.1 -.1 2.1]);
 title 'Geometry With Edge Labels Displayed';
 thermalProperties(model,'ThermalConductivity',2,'MassDensity',1,'SpecificHeat',1);
 generateMesh(model);
-tlist = 0:0.001:0.73
+tlist = 0:0.001:1.109
 thermalIC(model,0);
 thermalBC(model,'Edge',4,'HeatFlux',0) 
 

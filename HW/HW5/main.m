@@ -29,7 +29,7 @@ colorbar;
 %%
 dx = 0.1
 length = 2
-dt = 0.001
+dt = 1/6*(0.1^2)/2;
 time = 1;
 T = ADI(dx,dx,dt,time,length);
 [X,Y] = meshgrid(0:dx:length,0:dx:length);
@@ -37,7 +37,7 @@ T = ADI(dx,dx,dt,time,length);
 f_norm = norm(T(:,:,1))
 max_i = 1
 for i = 2:time/dt+1
-    if (abs(f_norm-norm(T(:,:,i))) < 0.001)
+    if (abs(f_norm-norm(T(:,:,i))) < 0.00001)
         max_i = i
         break
     end
