@@ -5,8 +5,8 @@ k = 1;
 lambda = k * dt/ (dx^2);
 L_var = (dx+hc*dt+k*dt/dx);
 R_var = (dx+k*dt/(dx));
-F_TL = @(v_l_1,v_l_2,v1,v2,T_t,T_x) ((Ta*hc + T_x * k/dx + ((v1-v_l_1)*dt - (v2-v_l_2)*dt)*dx) * dt + T_t*dx)/L_var;
-F_TR = @(v_l_1,v_l_2,v1,v2,T_t,T_x) ((k/(dx) * T_x + ((v1-v_l_1)*dt - (v2-v_l_2)*dt)*dx -1)*dt + T_t*dx)/R_var;
+F_TL = @(v_l_1,v_l_2,v1,v2,T_t,T_x) ((Ta*hc + T_x * k/dx + ((v1-v_l_1) - (v2-v_l_2))*dx*dt) * dt + T_t*dx)/L_var;
+F_TR = @(v_l_1,v_l_2,v1,v2,T_t,T_x) ((k/(dx) * T_x + ((v1-v_l_1) - (v2-v_l_2))*dx*dt -1)*dt + T_t*dx)/R_var;
 
 T_mat = zeros(time/dt+1,1/dx + 1);
 B_mat = diag(ones(1/dx,1),1)+diag(ones(1/dx + 1,1))*-2+diag(ones(1/dx ,1),-1);

@@ -5,10 +5,12 @@ dx = 0.2
 T2 = rod_explicit(dx,dt,20);
 
 
-[X,Y] = meshgrid(0:0.1:1,0:0.01:20-0.01);  
+[X,Y] = meshgrid(0:dx:1,0:dt:20);  
 surf(X,Y,T2)
+
 ylabel('$$Time$$','interpreter','latex');
 xlabel('$$location$$','interpreter','latex');
+zlabel('$$Temperature$$','interpreter','latex');
 shading interp
 colormap('hot');
 colorbar;

@@ -52,8 +52,8 @@ for i = 2:round(time/dt)+1
             end
             
             b_vec_s = Temporal_T'*lambda_vec + dt*fval((0:length/dx)'*dx,ones(length/dy+1,1).*j*dy).*Temporal_T(j+1,:)';
-            b_vec_s(1) = T_mat(1,j+1,i-1);
-            b_vec_s(end) = T_mat(end,j+1,i-1);
+            b_vec_s(1) = T_mat(j+1,1,i-1);
+            b_vec_s(end) = T_mat(j+1,end,i-1);
             T_mat(j+1,:,i) = (L_mat_R\b_vec_s)';
         end
     end
