@@ -30,7 +30,7 @@ colorbar;
 dx = 0.1
 length = 2
 dt = 1/6*(0.1^2)/2;
-time = 1;
+time = 5;
 T = ADI(dx,dx,dt,time,length);
 [X,Y] = meshgrid(0:dx:length,0:dx:length);
 %%
