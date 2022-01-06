@@ -75,25 +75,24 @@ classdef funcbund
             dx = norm(outputFcn_global_data(end-1).x - outputFcn_global_data(end).x);
         end
 
-        function [x,fval,df,dx,exitflag,generations,funcCount] = GeneticAlgorithm(fun,x0,MaxGenerations,FunctionTolerance,Npop)
+        function [x,fval,exitflag,generations,funcCount] = GeneticAlgorithm(fun,x0,MaxGenerations,FunctionTolerance)
             clear global;
             global outputFcn_global_data
 
 
             options = optimoptions('ga','Display','iter',...
                 'MaxGenerations',MaxGenerations,'FunctionTolerance',FunctionTolerance,...
-                'OutputFcn',@outputFcn_global_ga,...
-                'PopulationSize',Npop);
+                'OutputFcn',@outputFcn_global_ga);
 
             nvars = length(x0);
             [x,fval,exitflag,output,population,scores] = ga(fun,nvars,[],[],[],[],[],[],[],options);
             generations = output.generations;
             funcCount = output.funccount;
             
-            fmin_i = mean(outputFcn_global_data(end-1).Score);
-            fmin_ip1 = mean(outputFcn_global_data(end).Score);
-            x_i = mean(outputFcn_global_data(end-1).Population);
-            x_ip1 = mean(outputFcn_global_data(end).Population);
+            [fmin_i,i] = mean(outputFcn_global_data(end-1).Score);
+            [fmin_ip1 = mean(outputFcn_global_data(end).Score);
+            x_i = outputFcn_global_data(end-1).Population(i,:);
+            x_ip1 = outputFcn_global_data(end).Population(ip1,:);
             df = fmin_i - fmin_ip1;
             dx = norm(x_i-x_ip1);
         end

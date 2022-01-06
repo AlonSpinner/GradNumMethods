@@ -7,13 +7,12 @@ maxIters = 1e4;
 StepTolerance = 1e-4;
 
 %different settings for ga and sa
-MaxGenerations = 100;
-Npop = 50; %ga
+MaxGenerations = maxIters;
 FunctionTolerance = StepTolerance;
 
-
-
-
+x = linspace(0,5,100);
+y = linspace(0,5)
+linspace
 
 %% Steepest Decent
 [x,fval,df,dx,exitflag,iterations,funcCount] = funcbund.SteepestDecent(fEasom,[2,2],maxIters,StepTolerance);
@@ -22,10 +21,10 @@ FunctionTolerance = StepTolerance;
 [x,fval,df,dx,exitflag,iterations,funcCount]  = funcbund.QuasiNewton(fEasom,[2,2],maxIters,StepTolerance);
 
 %% Simulated annealing
-[x,fval,df,dx,exitflag,iterations,funcCount] = funcbund.SimulatedAnealing(fEasom,[2,2],maxIters,FunctionTolerance);
+[x,fval,exitflag,iterations,funcCount] = funcbund.SimulatedAnealing(fEasom,[2,2],maxIters,FunctionTolerance);
 
 %% Genetic Algorithm
-[x,fval,df,dx,exitflag,generations,funcCount] = funcbund.GeneticAlgorithm(fEasom,[2,2],MaxGenerations,FunctionTolerance,Npop);
+[x,fval,exitflag,iterations,funcCount] = funcbund.GeneticAlgorithm(fEasom,[2,2],MaxGenerations,FunctionTolerance);
 
 %% Downhill simplex
 [x,fval,exitflag,iterations,funcCount] = funcbund.DownhillSimplex(fEasom,[2,2],maxIters,StepTolerance);
