@@ -87,20 +87,30 @@ classdef funcbund
             fsurf(ax,fun,Limits,'EdgeColor','none');
             axis('manual');
             
-            methods = T.Properties.VariableNames;
+            methods = T.Properties.VariableNames(2:end); %first col is x0
             entries = T.Variables;
+            entries = entries(:,2:end); %first col is x0
             shapes = {'o','+','*','x','s','d','p','h','^'};
             colors = jet(length(methods));
-            for ii=1:length(methods)
+            for ii=1:length(methods) %first col is x0
                 sols = cell2mat(entries(:,ii));
-                z = fun(sols(:,1),sols(:,2)) + 1; %allow rendeer to show points above
+                z = sols(:,3) + 1; %allow rendeer to show points above
                 scatter3(ax,sols(:,1),sols(:,2),z,50,shapes{ii},...
                     'LineWidth',2,'MarkerEdgeColor',colors(ii,:));
             end
             legend([{funName},methods],'location','best');
             colorbar(ax);
             colormap(ax,'gray');
+        end
 
+        function bestSolsInds = findBestAttempt(T)
+            T = T(:,2:end); %dont care about x0 column
+            Nmethods = length(T.Properties.VariableNames);
+            bestSolsInds = zeros(1,Nmethods);
+            for ii=1:Nmethods
+                data = cell2mat(table2array(T(:,ii)));
+                [~,bestSolsInds(ii)] = min(data(:,3));
+            end
         end
     end
 end

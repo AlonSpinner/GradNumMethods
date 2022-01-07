@@ -9,7 +9,7 @@ StepTolerance = 1e-4;
 
 %different settings for ga
 ga_MaxGenerations = 100;
-ga_Npop = 50; %ga
+    ga_Npop = 50; %ga
 ga_FunctionTolerance = 1e-4;
 
 %different settings for sa
@@ -20,10 +20,11 @@ M = 5; %number of methods
 
 %Table template construction
 methods = {'SteepestDecent','QuasiNewton','SimulatedAnealing','GeneticAlgorithm','DownhillSimplex'};
-VarTypes = {'cell','cell','cell','cell','cell'}; %M Times
+VarNames = [{'x0'},methods];
+VarTypes = {'cell','cell','cell','cell','cell','cell'}; %M Times
 rowNames = {'sol1','sol2','sol3','sol4','sol5'}; %K Times
-T = table('Size',[K,M],'VariableTypes',VarTypes,...
-    'RowNames',rowNames,'VariableNames',methods);
+T = table('Size',[K,M+1],'VariableTypes',VarTypes,...
+    'RowNames',rowNames,'VariableNames',VarNames);
 
 %function limits [xmin,xmax,ymin,ymax]
 EasomLimits = [0 5, 0 5];
@@ -47,14 +48,28 @@ title('Eggholder'); xlabel('x'); ylabel('y'); zlabel('z');
 x0 = (rand(K,2)-0.5).*A+m;
 T_Easom = T;
 for ii=1:K
-[T_Easom.SteepestDecent{ii},fval,exitflag,iterations,funcCount] = funcbund.SteepestDecent(fEasom,x0(ii,:),maxIters,StepTolerance);
-[T_Easom.QuasiNewton{ii},fval,exitflag,iterations,funcCount]  = funcbund.QuasiNewton(fEasom,x0(ii,:),maxIters,StepTolerance);
-[T_Easom.SimulatedAnealing{ii},fval,exitflag,iterations,funcCount] = funcbund.SimulatedAnealing(fEasom,x0(ii,:),maxIters,sa_FunctionTolerance);
-[T_Easom.GeneticAlgorithm{ii},fval,exitflag,generations,funcCount] = funcbund.GeneticAlgorithm(fEasom,x0(ii,:),ga_MaxGenerations,ga_FunctionTolerance,ga_Npop);
-[T_Easom.DownhillSimplex{ii},fval,exitflag,iterations,funcCount] = funcbund.DownhillSimplex(fEasom,x0(ii,:),maxIters,StepTolerance);
+    T_Easom.x0{ii} = x0(ii,:);
+end
+
+for ii=1:K %first col is x0
+[x,fval] = funcbund.SteepestDecent(fEasom,x0(ii,:),maxIters,StepTolerance);
+T_Easom.SteepestDecent{ii} = [x,fval];
+
+[x,fval]  = funcbund.QuasiNewton(fEasom,x0(ii,:),maxIters,StepTolerance);
+T_Easom.QuasiNewton{ii} = [x,fval];
+
+[x,fval]= funcbund.SimulatedAnealing(fEasom,x0(ii,:),maxIters,sa_FunctionTolerance);
+T_Easom.SimulatedAnealing{ii} = [x,fval];
+
+[x,fval]= funcbund.GeneticAlgorithm(fEasom,x0(ii,:),ga_MaxGenerations,ga_FunctionTolerance,ga_Npop);
+T_Easom.GeneticAlgorithm{ii} = [x,fval];
+
+[x,fval,exitflag,iterations,funcCount] = funcbund.DownhillSimplex(fEasom,x0(ii,:),maxIters,StepTolerance);
+T_Easom.DownhillSimplex{ii} = [x,fval];
 end
 
 funcbund.plotResults(@Easom,EasomLimits,T_Easom,'Easom');
+Easom_bestSolsInds = funcbund.findBestAttempt(T_Easom);
 %% Rosenbrock
 [A,m] = funcbund.Limits2AmpAndMean(RosenbrockLimits);
 x0 = (rand(K,2)-0.5).*A+m;
