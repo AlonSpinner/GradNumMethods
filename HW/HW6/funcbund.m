@@ -2,7 +2,7 @@ classdef funcbund
     properties(Constant)
     end
     methods(Static)
-        function [x,fval,exitflag,iterations,funcCount] = SteepestDecent(fun,x0,maxIters,StepTolerance)
+        function [x,fval,exitflag,iterations,funcCount,data] = SteepestDecent(fun,x0,maxIters,StepTolerance)
             %we will use the BFGS quasi-newton method
             %good stuff: https://en.wikipedia.org/wiki/Quasi-Newton_method
 
@@ -13,16 +13,23 @@ classdef funcbund
 
             %in quasi-newton, instead of H we use A, which uses only first derivatives.
             %apprently MATLAB implements BFGS in fminunc (confirmed via documentation)
+            clear outputFcn_global_data;
+            global outputFcn_global_data;
 
             options = optimoptions(@fminunc,'Display','iter',...
                 'Algorithm','quasi-newton','HessUpdate','steepdesc',...
-                'MaxIterations',maxIters,...
-                'StepTolerance',StepTolerance);
+                'MaxIterations',maxIters,'MaxFunctionEvaluations',inf,...
+                'StepTolerance',StepTolerance,'OutputFcn',@outputFcn_global);
             [x,fval,exitflag,output] = fminunc(fun,x0,options);
             iterations = output.iterations;
             funcCount = output.funcCount;
+
+            LastStepSize = norm(outputFcn_global_data(end).x - outputFcn_global_data(end-1).x);
+            LastValueChange = norm(fun(outputFcn_global_data(end-1).x) - fun(outputFcn_global_data(end).x));
+        
+            data = [iterations,output.funcCount,LastStepSize,LastValueChange,x0,x,fval];
         end
-        function [x,fval,exitflag,iterations,funcCount] = QuasiNewton(fun,x0,maxIters,StepTolerance)
+        function [x,fval,exitflag,iterations,funcCount,data] = QuasiNewton(fun,x0,maxIters,StepTolerance)
         %we will use the BFGS quasi-newton method
         %good stuff: https://en.wikipedia.org/wiki/Quasi-Newton_method
         
@@ -34,44 +41,75 @@ classdef funcbund
         %in quasi-newton, instead of H we use A, which uses only first derivatives.
         %apprently MATLAB implements BFGS in fminunc (confirmed via documentation)
 
+        clear outputFcn_global_data;
+        global outputFcn_global_data;
+
         options = optimoptions(@fminunc,'Display','iter','Algorithm','quasi-newton',...
             'MaxIterations',maxIters,...
-            'StepTolerance',StepTolerance);
+            'StepTolerance',StepTolerance,'OutputFcn',@outputFcn_global);
         [x,fval,exitflag,output] = fminunc(fun,x0,options);
         iterations = output.iterations;
         funcCount = output.funcCount;
+        LastStepSize = norm(outputFcn_global_data(end).x - outputFcn_global_data(end-1).x);
+        LastValueChange = norm(fun(outputFcn_global_data(end-1).x) - fun(outputFcn_global_data(end).x));
+        
+        data = [iterations,output.funcCount,LastStepSize,LastValueChange,x0,x,fval]
         end
 
-        function [x,fval,exitflag,iterations,funcCount] = SimulatedAnealing(fun,x0,maxIters,FunctionTolerance)
+        function [x,fval,exitflag,iterations,funcCount,data] = SimulatedAnealing(fun,x0,maxIters,FunctionTolerance)
+            clear outputFcn_global_data;
+            global outputFcn_global_data;
+            
             options = optimoptions('simulannealbnd','Display','iter',...
-                'MaxIterations',maxIters,'FunctionTolerance',FunctionTolerance);
+                'MaxIterations',maxIters,'FunctionTolerance',FunctionTolerance,'OutputFcn',@sa_outputFcn_global);
             
             [x,fval,exitflag,output] = simulannealbnd(fun,x0,[],[],options);
             iterations = output.iterations;
             funcCount = output.funccount;
+            LastStepSize = norm(outputFcn_global_data(end).state.x - outputFcn_global_data(end-1).state.x);
+            LastValueChange = norm(outputFcn_global_data(end-1).state.fval - outputFcn_global_data(end-1).state.fval);
+            data = [iterations,funcCount,LastStepSize,LastValueChange,x0,x,fval];
         end
 
-        function [x,fval,exitflag,generations,funcCount] = GeneticAlgorithm(fun,x0,MaxGenerations,FunctionTolerance,Npop)
+        function [x,fval,exitflag,generations,funcCount,Data] = GeneticAlgorithm(fun,x0,MaxGenerations,FunctionTolerance,Npop)
+            clear outputFcn_global_data;
+            global outputFcn_global_data;
+            
             options = optimoptions('ga','Display','iter',...
                 'MaxGenerations',MaxGenerations,'FunctionTolerance',FunctionTolerance,...
-                'PopulationSize',Npop);
+                'PopulationSize',Npop,'OutputFcn',@ga_outputFcn_global);
+
+            
 
             nvars = length(x0);
             [x,fval,exitflag,output,population,scores] = ga(fun,nvars,[],[],[],[],[],[],[],options);
             generations = output.generations;
             funcCount = output.funccount;
+            f_mean_change = norm(mean(outputFcn_global_data(end).state.Score) - mean(outputFcn_global_data(end-1).state.Score));
+            f_change = norm(outputFcn_global_data(end).state.Best(end) - outputFcn_global_data(end).state.Best(end-1));
+            [~,index] = min(outputFcn_global_data(1).state.Score);
+            x_init_best = outputFcn_global_data(1).state.Population(8,:);
+            Data = [generations,funcCount,f_mean_change,f_change,x_init_best,x,fval];
         end
 
-        function [x,fval,exitflag,iterations,funcCount] = DownhillSimplex(fun,x0,maxIters,StepTolerance) 
+        function [x,fval,exitflag,iterations,funcCount,data] = DownhillSimplex(fun,x0,maxIters,StepTolerance) 
             %explination on the algorithm:
             %https://www.mathworks.com/help/optim/ug/fminsearch-algorithm.html
+
+        clear outputFcn_global_data;
+        global outputFcn_global_data;
             options = optimset('Display','iter',...
                 'TolX',StepTolerance,...
-                'MaxIter',maxIters);
+                'MaxIter',maxIters,'OutputFcn',@outputFcn_global);
 
             [x,fval,exitflag,output] = fminsearch(fun,x0,options);
             iterations = output.iterations;
             funcCount = output.funcCount;
+
+            LastStepSize = norm(outputFcn_global_data(end).x - outputFcn_global_data(end-1).x);
+            LastValueChange = norm(fun(outputFcn_global_data(end-1).x) - fun(outputFcn_global_data(end).x));
+            data = [iterations,output.funcCount,LastStepSize,LastValueChange,x0,x,fval]
+
         end
         
         function [A,m] = Limits2AmpAndMean(limits)
