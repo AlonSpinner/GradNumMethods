@@ -102,10 +102,18 @@ scatter(ax,table2array(T("GQ","x")),table2array(T("GQ","f(x)"))...
 legend(ax,[{'f(x)'},T.Properties.RowNames(2:end)'],"location","best");
 
 %% Question 3
-syms n
 Et = @(n) 2^(2*n+3)*(factorial(n+1))^4/((2*n+3)*factorial(2*n+2)^3);
-r = Et(n)/Et(2*n);
-disp(simplify(r,1000));
+fq = @(n) Et(n+1)/Et(n);
+n = 32:35;
+q = zeros(1,length(n));
+for ii = 1:length(n)
+    q(ii) = fq(n(ii));
+end
+fig=figure('color',[1,1,1]);
+ax=axes(fig); grid(ax,'on'); hold(ax,'on');
+plot(ax,n,q); plot([n(1),n(end)],1e-6*[1,1]);
+xlabel('n'); ylabel('E_t(n+1)/E_t(n)');
+
 %% Question 3-a: f = exp(2*x)*sin(2*x)
 
 fun = @(x) exp(2*x)*sin(2*x);

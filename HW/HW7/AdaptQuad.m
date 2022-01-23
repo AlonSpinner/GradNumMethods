@@ -1,18 +1,15 @@
-function [I,flag] = AdaptQuad(fun,a,b,n,epsilon,Iprev)
+function I = AdaptQuad(fun,a,b,n,epsilon,I1)
     if nargin <6 %Iprev not provided, probability first iteration
-        Iprev = GC(fun,a,b,n);
+        I1 = GC(fun,a,b,n);
     end
+    
     m = (a+b)/2;
-    s1 = GC(fun,a,m,n);
-    s2 = GC(fun,m,b,n);
+    I2 = GC(fun,a,m,n)+GC(fun,m,b,n);
 
-    if abs(Iprev-(s1+s2))>epsilon
-        I=s1+s2;
-        flag = true;
+    if abs(I1-I2) < epsilon
+        I = I2 + (I2-I1)/15;
     else
-        s1 = AdaptQuad(fun,a,m,n,epsilon/2);
-        AdaptQuad(fun,m,b,n,epsilon/2);
-        flag = false;
+        I = AdaptQuad(fun,a,m,n,epsilon)+AdaptQuad(fun,m,b,n,epsilon/2);
     end
 end
 
