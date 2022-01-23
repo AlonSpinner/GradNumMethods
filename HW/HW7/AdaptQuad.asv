@@ -1,0 +1,21 @@
+function I=AdaptQuad(fun,a,b,n,epsilon,Iprev)
+    if nargin <6 %I
+    I = GC(fun,a,b,n);
+    m = (a+b)/2;
+    s1 = GC(fun,a,m,n);
+    s2 = GC(fun,m,b,n);
+
+    if abs(I-(s1+s2))>epsilon
+        I=s1+s2;
+    else
+        I=AdaptQuad(fun,a,m,n,epsilon) + AdaptQuad(fun,m,b,n,epsilon);
+    end
+end
+
+function I = GC(fun,a,b,n)
+    [x,w] = lgwt(a,b,n); %both column vectors
+    %assume function was not written for a vectorized x
+    y = bsxfun(fun,x);
+    I = w'*y;
+
+end
