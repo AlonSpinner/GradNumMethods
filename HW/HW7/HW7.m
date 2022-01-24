@@ -28,8 +28,8 @@ for ii=1:length(vars)
 end
 
 %asumming the variables will always be arranged [w,x] as in our case:
-solx = solk(N+1:end);
-solw = solk(1:N);
+solx = solk(M+1:end);
+solw = solk(1:M);
 [~,I] = sort(double(solx));
 
 format long
@@ -107,12 +107,174 @@ Et_n = 2^(2*n+3)*(factorial(n+1))^4/((2*n+3)*factorial(2*n+2)^3);
 Et_np1 = simplify(subs(Et_n,n+1),1000);
 q = simplify(Et_np1/Et_n,1000);
 epsilon = 1e-6;
-disp(vpasolve(q == epsilon));
+disp(ceil(max(vpasolve(q == epsilon))));
 
+fq = matlabFunction(q);
+n = 1:1000;
+fig = figure('color',[1,1,1]); 
+ax=axes(fig);
+hold(ax,'on'); grid(ax,'on'); 
+plot(ax,n,fq(n));
+ax.XScale = 'log';
+xlabel(ax,'n'); ylabel(ax,'E_t(n+1)/E_t(n)');
+title(ax,sprintf('Gauss Quadrature\nRational Between Consecutive Error Terms'));
 
-%% Question 3-a: f = exp(2*x)*sin(2*x)
+q = simplify(abs(Et_np1-Et_n),1000);
+fq = matlabFunction(q);
+n = 1:1000;
+fig = figure('color',[1,1,1]); 
+ax=axes(fig);
+hold(ax,'on'); grid(ax,'on'); 
+plot(ax,n,fq(n));
+ax.XScale = 'log'; ax.YScale = 'log';
+xlabel(ax,'n'); ylabel(ax,'\alpha * abs(E_t(n+1) - E_t(n))');
+title(ax,sprintf('Gauss Quadrature\nDistance Between Error Terms'));
 
-fun = @(x) exp(2*x)*sin(2*x);
-a = 0; b = pi/4; n = 1000; epsilon=1e-5;
-I = AdaptQuad(fun,a,b,n,epsilon);
-q = integral(fun,xmin,xmax)
+%% Question 3-a: f = exp(3*x)*sin(2*x)
+syms x
+a = 0; b = pi/4;
+Itrue = int(exp(3*x)*sin(2*x),a,b);
+
+epsilon=1e-6;
+n=2:10;
+f = @(x) exp(3*x).*sin(2*x);
+k = 10; %number of repeated iterations on each integral for better time computation
+
+%construct data
+[AGQ,timeAGQ,GQevals] = deal(zeros(size(n)));
+for ii = 1:length(n)
+    I = 0; evals = 0;
+    tic;
+    for jj=1:k
+        [I_jj,evals_jj] = AdaptQuad(f,a,b,n(ii),epsilon);
+        I = I + I_jj;
+        evals = evals + evals_jj;
+    end
+    AGQ(ii) = I/k;
+    timeAGQ(ii) = toc/k;
+    GQevals(ii) = evals/k;
+    disp(ii);
+end
+%MATLAB result and time
+I = 0;
+tic;
+for jj=1:k
+    I = I + integral(f,a,b,'RelTol',epsilon);
+end
+IMATLAB = I/k;
+timeMATLAB = toc/k;
+
+eMATLAB = abs(IMATLAB - Itrue);
+eAGQ = abs(AGQ - Itrue);
+
+%----------------------------------PLOT
+fig = figure('color',[1,1,1]); 
+tlo = tiledlayout(fig,1,3);
+title(tlo,'f(x) = exp(3*x)*sin(2*x)','FontSize',15,'FontWeight','Bold');
+%Computation time
+nexttile(tlo);
+hold('on'); grid('on'); 
+title('Computation Time');
+xlabel('n'); ylabel('Computation Time[s]'); 
+plot(n,timeAGQ);
+plot([n(1),n(end)],timeMATLAB*[1,1]);
+legend("Adaptive Gauss Quadrature", "MATLAB's integral");
+%integration error
+nexttile(tlo);
+hold('on'); grid('on'); 
+title('Integration Error');
+xlabel('n'); ylabel('Absolute Error'); 
+plot(n,eAGQ);
+plot([n(1),n(end)],eMATLAB*[1,1]);
+legend("Adaptive Gauss Quadrature", "MATLAB's integral");
+set(gca,'XScale','log');
+set(gca,'YScale','log');
+%evaluations
+nexttile(tlo);
+hold('on'); grid('on');
+title('GQ Evaluations vs Initial n');
+xlabel('n'); ylabel('GQ Evaluations');   
+bar(n,GQevals);
+%% Question 3-b: f = x.*sin(x^2)
+syms x
+a = 0; b = pi;
+Itrue = int(x*sin(x^2),a,b);
+
+epsilon=1e-6;
+n=2:10;
+f = @(x) x.*sin(x.^2);
+k = 10; %number of repeated iterations on each integral for better time computation
+
+%construct data
+[AGQ,timeAGQ,GQevals] = deal(zeros(size(n)));
+for ii = 1:length(n)
+    I = 0; evals = 0;
+    tic;
+    for jj=1:k
+        [I_jj,evals_jj] = AdaptQuad(f,a,b,n(ii),epsilon);
+        I = I + I_jj;
+        evals = evals + evals_jj;
+    end
+    AGQ(ii) = I/k;
+    timeAGQ(ii) = toc/k;
+    GQevals(ii) = evals/k;
+    disp(ii);
+end
+%MATLAB result and time
+I = 0;
+tic;
+for jj=1:k
+    I = I + integral(f,a,b,'RelTol',epsilon);
+end
+IMATLAB = I/k;
+timeMATLAB = toc/k;
+
+eMATLAB = abs(IMATLAB - Itrue);
+eAGQ = abs(AGQ - Itrue);
+
+%----------------------------------PLOT
+fig = figure('color',[1,1,1]); 
+tlo = tiledlayout(fig,1,3);
+title(tlo,'f(x) = x*sin(x^2)','FontSize',15,'FontWeight','Bold');
+%Computation time
+nexttile(tlo);
+hold('on'); grid('on'); 
+title('Computation Time');
+xlabel('n'); ylabel('Computation Time[s]'); 
+plot(n,timeAGQ);
+plot([n(1),n(end)],timeMATLAB*[1,1]);
+legend("Adaptive Gauss Quadrature", "MATLAB's integral");
+%integration error
+nexttile(tlo);
+hold('on'); grid('on'); 
+title('Integration Error');
+xlabel('n'); ylabel('Absolute Error'); 
+plot(n,eAGQ);
+plot([n(1),n(end)],eMATLAB*[1,1]);
+legend("Adaptive Gauss Quadrature", "MATLAB's integral");
+set(gca,'XScale','log');
+set(gca,'YScale','log');
+%evaluations
+nexttile(tlo);
+hold('on'); grid('on');
+title('GQ Evaluations vs Initial n');
+xlabel('n'); ylabel('GQ Evaluations');   
+bar(n,GQevals);
+
+%Find out about "luck"
+fig=figure('color',[1,1,1]);
+tlo = tiledlayout(fig,'flow');
+title(tlo,'f(x) = x*sin(x^2) with Luck','FontSize',15,'FontWeight','Bold');
+
+n = [2:3];
+for ii=n
+    nexttile(tlo);
+    [x,w] = lgwt(ii,a,b); %both column vectors
+    %assume function was not written for a vectorized x
+    t=linspace(a,b,1000);
+    hold('on'); grid('on');
+    plot(t,f(t));
+    scatter(x,f(x),50);
+    xlabel('x'); ylabel('y');
+    legend('f(x)','GQ integration points');
+end
